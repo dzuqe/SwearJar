@@ -14,7 +14,7 @@ me = os.environ["ETH_ACC"]
 contract_abi = open("./build/SwearJar.abi", "r").read()
 token_abi = open("/home/hydrogen/polygon/scarg-token/build/ScarredEntertainment.abi", "r").read()
 
-jar = web3.eth.contract(address=web3.toChecksumAddress("0xf6f9c82e3c86a058e549a4c135df196011ce74cf"), abi=contract_abi)
+jar = web3.eth.contract(address=web3.toChecksumAddress("0xa326c62ce5a45e8095524a42e9bc85740db7e714"), abi=contract_abi)
 token = web3.eth.contract(address=web3.toChecksumAddress("0xf34e9bd70c9686c3023e25b23e5a9ea49f1f4b02"), abi=token_abi)
 
 #etx = disp.functions.disperseEther(addresses, amounts).buildTransaction({

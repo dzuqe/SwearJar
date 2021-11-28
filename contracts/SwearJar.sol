@@ -21,23 +21,20 @@ contract SwearJar {
       SCARG = IERC20(token);
     }
 
-    modifier onlyOwner() {
+    modifier auth() {
       require(msg.sender == owner, "(SwearJar Error): Only the owner access the trash.");
       _;
     }
 
+    event Swore();
+    event Redempt();
+
     function swear(string memory word, uint256 amount) public payable {
       require(bytes(word).length > 0, "(SwearJar Error): You gotta at least swear first, man.");
       require(amount <= SCARG.balanceOf(msg.sender), "You don't have enough $SCARG to swear.");
-
-      if (swears[msg.sender].length == 0) {
-        swears[msg.sender].push(Swear(word, 1, amount));
-        SCARG.transferFrom(msg.sender, address(this), amount);
-        return;
-      }
      
-      uint256 index = wordExists(msg.sender, word);
-      if (index < swears[msg.sender].length) {
+      uint256 index = exists(msg.sender, word);
+      if (swears[msg.sender].length != 0 && index < swears[msg.sender].length) {
         swears[msg.sender][index].count += 1;
         swears[msg.sender][index].spent += amount;
         SCARG.transferFrom(msg.sender, address(this), amount);
@@ -45,9 +42,10 @@ contract SwearJar {
         swears[msg.sender].push(Swear(word, 1, amount));
         SCARG.transferFrom(msg.sender, address(this), amount);
       }
+      emit Swore();
     }
 
-    function wordExists(address sender, string memory word) private view returns (uint256) {
+    function exists(address sender, string memory word) private view returns (uint256) {
       uint256 i=0;
       for (i = 0; i < swears[sender].length; i++) {
         if (keccak256(abi.encodePacked(swears[sender][i].word)) == keccak256(abi.encodePacked(word))) {
@@ -61,7 +59,8 @@ contract SwearJar {
       return swears[msg.sender];
     }
 
-    function withdraw(address payable swearer, string memory word) public payable returns (bool) {
+    function redeem(address payable swearer, string memory word) public payable returns (bool state) {
+      state = false;
       for (uint256 i = 0; i < swears[swearer].length; i++) {
         if (keccak256(abi.encodePacked(swears[swearer][i].word)) == keccak256(abi.encodePacked(word))) {
           uint256 amount = swears[swearer][i].spent;
@@ -73,25 +72,27 @@ contract SwearJar {
           if (SCARG.balanceOf(address(this)) >= rcv_amount) {
             trashcan += trash;
             SCARG.transfer(swearer, rcv_amount);
-            return true;
+            state = true;
+            break;
           } else {
             swears[swearer][i].spent = amount;
-            return false;
+            break;
           }
         }
       }
-      return false;
+      emit Redempt();
+      return state;
     }
 
     // called when msg.data is not empty
     fallback() external payable {}
     receive() external payable {}
 
-    function getBalance() public onlyOwner view returns (uint256) {
+    function feel() public auth view returns (uint256) {
       return trashcan;
     }
 
-    function trashDay(address payable to) public onlyOwner payable {
+    function dump(address payable to) public auth payable {
       require(trashcan >= 0, "(SwearJar Error): No trash to take out.");
       require(address(this).balance >= trashcan, "(SwearJar Error): Not enough balance in the contract.");
       trashcan = 0;

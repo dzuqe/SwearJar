@@ -86,6 +86,7 @@ function App() {
 
           <form onClick={() => console.log("Swear")} className="swear-box">
               <input type="text" placeholder="swear word" />
+              <input type="number" placeholder="amount" />
               <input type="submit" value="swear" />
           </form>
 
