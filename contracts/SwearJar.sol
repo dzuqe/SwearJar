@@ -26,21 +26,24 @@ contract SwearJar {
       _;
     }
 
-    function swear(string memory word) public payable {
+    function swear(string memory word, uint256 amount) public payable {
       require(bytes(word).length > 0, "(SwearJar Error): You gotta at least swear first, man.");
-      require(msg.value <= SCARG.balanceOf(msg.sender), "You don't have enough $SCARG to swear.");
+      require(amount <= SCARG.balanceOf(msg.sender), "You don't have enough $SCARG to swear.");
 
       if (swears[msg.sender].length == 0) {
-        swears[msg.sender].push(Swear(word, 1, msg.value));
+        swears[msg.sender].push(Swear(word, 1, amount));
+        SCARG.transferFrom(msg.sender, address(this), amount);
         return;
       }
      
       uint256 index = wordExists(msg.sender, word);
       if (index < swears[msg.sender].length) {
         swears[msg.sender][index].count += 1;
-        swears[msg.sender][index].spent += msg.value;
+        swears[msg.sender][index].spent += amount;
+        SCARG.transferFrom(msg.sender, address(this), amount);
       } else {
-        swears[msg.sender].push(Swear(word, 1, msg.value));
+        swears[msg.sender].push(Swear(word, 1, amount));
+        SCARG.transferFrom(msg.sender, address(this), amount);
       }
     }
 
@@ -69,7 +72,7 @@ contract SwearJar {
 
           if (SCARG.balanceOf(address(this)) >= rcv_amount) {
             trashcan += trash;
-            SCARG.transferFrom(address(this), swearer, rcv_amount);
+            SCARG.transfer(swearer, rcv_amount);
             return true;
           } else {
             swears[swearer][i].spent = amount;

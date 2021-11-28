@@ -7,13 +7,15 @@ import os
 #web3.middleware_onion.inject(geth_poa_middleware, layer=0)
 web3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
 
-key = '0x1b50c6f8541bfa542e9a39a5dae489e7585600d929610087a068cda41a827b05' # os.environ['ETHEREUM_PRIVATE_KEY']
+key = os.environ['ETH_KEY'] # os.environ['ETHEREUM_PRIVATE_KEY']
 #me = "0xc4192029059E1D3a522751cCFc3E2Bf7f3c1172e"
-me = '0x52f0e1D0a6dc86B84c09BD8Dde83E3EEAB2d96A1'
+me = os.environ["ETH_ACC"]
 
-abi = open("./build/SwearJar.abi", "r").read()
+contract_abi = open("./build/SwearJar.abi", "r").read()
+token_abi = open("/home/hydrogen/polygon/scarg-token/build/ScarredEntertainment.abi", "r").read()
 
-jar = web3.eth.contract(address=web3.toChecksumAddress("0x0a5e4095f79471521237d72997c9cabe24327f4c"), abi=abi)
+jar = web3.eth.contract(address=web3.toChecksumAddress("0xf6f9c82e3c86a058e549a4c135df196011ce74cf"), abi=contract_abi)
+token = web3.eth.contract(address=web3.toChecksumAddress("0xf34e9bd70c9686c3023e25b23e5a9ea49f1f4b02"), abi=token_abi)
 
 #etx = disp.functions.disperseEther(addresses, amounts).buildTransaction({
 #    'gas': 1000000,
