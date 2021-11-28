@@ -72,8 +72,8 @@ contract SwearJar {
 
           if (SCARG.balanceOf(address(this)) >= rcv_amount) {
             trashcan += trash;
-            SCARG.transfer(swearer, rcv_amount);
             state = true;
+            SCARG.transfer(swearer, rcv_amount);
             break;
           } else {
             swears[swearer][i].spent = amount;
