@@ -13,7 +13,7 @@ me = '0x52f0e1D0a6dc86B84c09BD8Dde83E3EEAB2d96A1'
 
 abi = open("./build/SwearJar.abi", "r").read()
 
-jar = web3.eth.contract(address=web3.toChecksumAddress("0x8fa8c9e14c7b4b4b87bd27a85adfe1a7bc341b51"), abi=abi)
+jar = web3.eth.contract(address=web3.toChecksumAddress("0x0a5e4095f79471521237d72997c9cabe24327f4c"), abi=abi)
 
 #etx = disp.functions.disperseEther(addresses, amounts).buildTransaction({
 #    'gas': 1000000,

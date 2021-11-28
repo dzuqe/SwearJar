@@ -16,7 +16,7 @@ abi = open("./build/SwearJar.abi", "r").read()
 
 jar = web3.eth.contract(abi=abi, bytecode=bytecode)
 
-dtx = jar.constructor(me).buildTransaction({
+dtx = jar.constructor(me, web3.toChecksumAddress("0x85131a5ea3f4d2a75b264e56a96751d8d5f131dd")).buildTransaction({
     'gas': 2000000,
     'gasPrice': web3.toWei(50, 'gwei'),
     'nonce': web3.eth.getTransactionCount(me),

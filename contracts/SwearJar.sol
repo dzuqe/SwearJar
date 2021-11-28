@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 contract SwearJar {
     struct Swear {
       string word;
@@ -12,8 +14,11 @@ contract SwearJar {
     mapping(address => Swear []) public swears;
     address public owner;
 
-    constructor(address _owner) {
+    IERC20 SCARG;
+
+    constructor(address _owner, address token) {
       owner = _owner;
+      SCARG = IERC20(token);
     }
 
     modifier onlyOwner() {
@@ -23,7 +28,7 @@ contract SwearJar {
 
     function swear(string memory word) public payable {
       require(bytes(word).length > 0, "(SwearJar Error): You gotta at least swear first, man.");
-      require(msg.value <= msg.sender.balance, "You don't have enough balance.");
+      require(msg.value <= SCARG.balanceOf(msg.sender), "You don't have enough $SCARG to swear.");
 
       if (swears[msg.sender].length == 0) {
         swears[msg.sender].push(Swear(word, 1, msg.value));
@@ -62,9 +67,9 @@ contract SwearJar {
 
           swears[swearer][i].spent = 0;
 
-          if (address(this).balance >= rcv_amount) {
+          if (SCARG.balanceOf(address(this)) >= rcv_amount) {
             trashcan += trash;
-            swearer.transfer(rcv_amount);
+            SCARG.transferFrom(address(this), swearer, rcv_amount);
             return true;
           } else {
             swears[swearer][i].spent = amount;
@@ -87,6 +92,6 @@ contract SwearJar {
       require(trashcan >= 0, "(SwearJar Error): No trash to take out.");
       require(address(this).balance >= trashcan, "(SwearJar Error): Not enough balance in the contract.");
       trashcan = 0;
-      to.transfer(trashcan);
+      SCARG.transferFrom(address(this), to, trashcan);
     } 
 }
