@@ -13,6 +13,7 @@ contract SwearJar {
     uint256 public trashcan;
     mapping(address => Swear []) public swears;
     address public owner;
+    uint256 private percent = 3;
 
     IERC20 SCARG;
 
@@ -64,7 +65,7 @@ contract SwearJar {
       for (uint256 i = 0; i < swears[swearer].length; i++) {
         if (keccak256(abi.encodePacked(swears[swearer][i].word)) == keccak256(abi.encodePacked(word))) {
           uint256 amount = swears[swearer][i].spent;
-          uint256 trash = amount * 3 / 100; 
+          uint256 trash = amount * percent / 100;
           uint256 rcv_amount = amount - trash;
 
           swears[swearer][i].spent = 0;
@@ -97,5 +98,13 @@ contract SwearJar {
       require(address(this).balance >= trashcan, "(SwearJar Error): Not enough balance in the contract.");
       trashcan = 0;
       SCARG.transferFrom(address(this), to, trashcan);
-    } 
+    }
+
+    function adjust(uint256 _percent) public auth {
+        percent = _percent;
+    }
+
+    function new_auth(address _owner) public auth {
+        owner = _owner;
+    }
 }
