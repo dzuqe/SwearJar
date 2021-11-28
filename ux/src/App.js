@@ -15,19 +15,11 @@ const token_abi = [{"inputs":[{"internalType":"uint256","name":"initialSupply","
 
 const token_address = '0xf34e9bd70c9686c3023e25b23e5a9ea49f1f4b02';
 
-function connectContract(jar_abi, jar_address, token_abi, token_address) {
-    var jar_contract = new Contract(jar_abi, jar_address);
-    var token_contract = new Contract(token_abi, token_address);
-    return [jar_contract, token_contract];
-}
+var jar_contract = new Contract(jar_abi, jar_address);
+var token_contract = new Contract(token_abi, token_address);
 
-const JAR_CONTRACT = 0
-const TOKEN_CONTRACT = 1
-
-var contracts = connectContract(jar_abi, jar_address, token_abi, token_address);
-
-async function getSwearWords(contracts) {
-    var result = await contracts[JAR_CONTRACT]
+async function loosen(jar) {
+    var result = await jar
         .methods
         .get()
         .call({"from": "0x3e3ef0a4A1CEA03B2FF7Fb784971e5299a474fe0"})
@@ -44,12 +36,12 @@ async function getSwearWords(contracts) {
     return results;
 }
 
-async function swear(contracts) {
-    var result = await contracts[JAR_CONTRACT]
+async function swear(jar) {
+    var result = await jar
         .methods
         .swear("horseshit", web3.toWei(1, 'ether'))
-        .transact({"from": "0x3e3ef0a4A1CEA03B2FF7Fb784971e5299a474fe0"})
-
+        .transact({"from": "0x3e3ef0a4A1CEA03B2FF7Fb784971e5299a474fe0"});
+    console.log(result);
 }
 
 function SwearWord(props) {
@@ -78,7 +70,7 @@ function App() {
         <p>
           <SwearWords words={words} />
           <button onClick={async () => {
-              var data = await getSwearWords(contracts);
+              var data = await loosen(jar_contract);
               setWords(data);
            }}>
             See your words
@@ -89,8 +81,6 @@ function App() {
               <input type="number" placeholder="amount" />
               <input type="submit" value="swear" />
           </form>
-
-
         </p>
       </div>
     </div>
