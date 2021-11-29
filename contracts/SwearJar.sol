@@ -29,6 +29,8 @@ contract SwearJar {
 
     event Swore();
     event Redempt();
+    event Trash();
+    event Adjust();
 
     function swear(string memory word, uint256 amount) public payable {
       require(bytes(word).length > 0, "(SwearJar Error): You gotta at least swear first, man.");
@@ -56,12 +58,11 @@ contract SwearJar {
       return i;
     }
 
-    function get() public view returns (Swear [] memory) {
+    function loosen() public view returns (Swear [] memory) {
       return swears[msg.sender];
     }
 
-    function redeem(address payable swearer, string memory word) public payable returns (bool state) {
-      state = false;
+    function redeem(address payable swearer, string memory word) public payable {
       for (uint256 i = 0; i < swears[swearer].length; i++) {
         if (keccak256(abi.encodePacked(swears[swearer][i].word)) == keccak256(abi.encodePacked(word))) {
           uint256 amount = swears[swearer][i].spent;
@@ -72,17 +73,13 @@ contract SwearJar {
 
           if (SCARG.balanceOf(address(this)) >= rcv_amount) {
             trashcan += trash;
-            state = true;
             SCARG.transfer(swearer, rcv_amount);
             break;
-          } else {
-            swears[swearer][i].spent = amount;
-            break;
-          }
+          } else
+            revert();
         }
       }
       emit Redempt();
-      return state;
     }
 
     // called when msg.data is not empty
@@ -98,13 +95,16 @@ contract SwearJar {
       require(address(this).balance >= trashcan, "(SwearJar Error): Not enough balance in the contract.");
       trashcan = 0;
       SCARG.transferFrom(address(this), to, trashcan);
+      emit Trash();
     }
 
     function adjust(uint256 _percent) public auth {
         percent = _percent;
+        emit Adjust();
     }
 
     function new_auth(address _owner) public auth {
         owner = _owner;
+        emit Adjust();
     }
 }
