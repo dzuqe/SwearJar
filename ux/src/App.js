@@ -22,7 +22,7 @@ var token_contract = new Contract(token_abi, token_address);
 async function loosen(jar) {
     var result = await jar
         .methods
-        .get()
+        .loosen()
         .call({"from": "0x3e3ef0a4A1CEA03B2FF7Fb784971e5299a474fe0"})
     var results = [];
     for (var i = 0; i < result.length; i++) {
